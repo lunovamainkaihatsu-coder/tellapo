@@ -8,37 +8,56 @@
 # - APIキー未設定でもローカル雛形で生成可能（フォールバック）
 # =========================================================
 
-import os, json, time, re, datetime
+import os
+import json
+import time
+import re
+import datetime
 from pathlib import Path
+
 from PIL import Image
 import streamlit as st
 from openai import OpenAI
-import streamlit as st
-from openai import OpenAI
-
-client = OpenAI(
-    api_key=st.secrets["OPENAI_API_KEY"]
-)
 
 # ---------- 基本 ----------
 APP_TITLE = "AIアポ練習くん v1.6"
 CONGRATS_THRESHOLD = 7  # しきい値は今後UI化予定
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# ---------- OpenAI APIキー ----------
+api_key = st.secrets.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")
+
+if not api_key:
+    st.error("OPENAI_API_KEY が設定されていません。Streamlit Cloud の Secrets に設定してください。")
+    st.stop()
+
+client = OpenAI(api_key=api_key)
+
+# ---------- パス設定 ----------
 ROOT = Path(__file__).resolve().parents[2]  # .../Luna-app
 APP_ID = "ai_apo_practice"
+
 DATA_DIR = ROOT / "data" / APP_ID
 DATA_DIR.mkdir(parents=True, exist_ok=True)
+
 SCRIPTS_DIR = DATA_DIR / "scripts"
 SCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
 
 ASSETS = ROOT / "assets"
 INSTR_ASSETS = ASSETS / "instructors"
 
-INST2DIR = {"優しいお姉さん":"oneesan","厳しめ上司":"boss","営業の仙人":"sennin"}
-EMO_TO_FILE = {"喜":"joy","通常":"neutral","困":"trouble","怒":"anger","驚":"surprise"}
+INST2DIR = {
+    "優しいお姉さん": "oneesan",
+    "厳しめ上司": "boss",
+    "営業の仙人": "sennin",
+}
 
-# ---------- ペルソナ/採点 ----------
+EMO_TO_FILE = {
+    "喜": "joy",
+    "通常": "neutral",
+    "困": "trouble",
+    "怒": "anger",
+    "驚": "surprise",
+}# ---------- ペルソナ/採点 ----------
 PERSONAS = {
     "穏やかな担当者（入門）":{
         "desc":"基本的に丁寧。こちらの話を聞くが、目的が曖昧だと流れる。",
