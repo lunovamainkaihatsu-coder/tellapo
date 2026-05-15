@@ -12,13 +12,17 @@ import os, json, time, re, datetime
 from pathlib import Path
 from PIL import Image
 import streamlit as st
-from dotenv import load_dotenv, find_dotenv
 from openai import OpenAI
+import streamlit as st
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=st.secrets["OPENAI_API_KEY"]
+)
 
 # ---------- 基本 ----------
 APP_TITLE = "AIアポ練習くん v1.6"
 CONGRATS_THRESHOLD = 7  # しきい値は今後UI化予定
-load_dotenv(find_dotenv())
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 ROOT = Path(__file__).resolve().parents[2]  # .../Luna-app
